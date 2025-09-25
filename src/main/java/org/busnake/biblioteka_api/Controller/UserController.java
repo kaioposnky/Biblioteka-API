@@ -1,6 +1,6 @@
 package org.busnake.biblioteka_api.Controller;
 
-import org.busnake.biblioteka_api.Assembler.UserModelAssembler;
+import org.busnake.biblioteka_api.Assembler.UserAssembler;
 import org.busnake.biblioteka_api.Exception.UserNotFoundException;
 import org.busnake.biblioteka_api.Model.Entities.User;
 import org.busnake.biblioteka_api.Repository.UserRepository;
@@ -16,9 +16,9 @@ import static org.busnake.biblioteka_api.Helper.ResponseHelper.createSuccessResp
 public class UserController implements GenericController<User> {
 
     private final UserRepository repository;
-    private final UserModelAssembler assembler;
+    private final UserAssembler assembler;
 
-    public UserController(UserRepository userRepository, UserModelAssembler assembler) {
+    public UserController(UserRepository userRepository, UserAssembler assembler) {
         this.repository = userRepository;
         this.assembler = assembler;
     }
@@ -33,7 +33,7 @@ public class UserController implements GenericController<User> {
 
     @GetMapping("/users/{id}")
     @Override
-    public ResponseEntity<?> one(Long id) {
+    public ResponseEntity<?> one(@PathVariable Long id) {
         User user = repository.findById(id).orElseThrow(
                 () -> new UserNotFoundException(id)
         );
@@ -51,7 +51,7 @@ public class UserController implements GenericController<User> {
 
     @DeleteMapping("/users/{id}")
     @Override
-    public ResponseEntity<?> delete(Long id) {
+    public ResponseEntity<?> delete(@PathVariable Long id) {
         User user = repository.findById(id).orElseThrow(
                 () -> new UserNotFoundException(id)
         );
@@ -68,7 +68,7 @@ public class UserController implements GenericController<User> {
         repository.findById(id).map(
                 (user -> {
                     user.setName(updatedUser.getName());
-                    user.setPassword(updatedUser.getPassword());
+                    user.setPasswordHash(updatedUser.getPasswordHash());
                     return repository.save(user);
                 })
         ).orElseGet(() -> {

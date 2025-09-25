@@ -2,11 +2,11 @@ package org.busnake.biblioteka_api.Assembler;
 
 import org.busnake.biblioteka_api.Controller.GenericController;
 import org.busnake.biblioteka_api.Model.Entities.Identifiable;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,13 +14,12 @@ import java.util.stream.Collectors;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-@Component
-public class GenericAssembler<E extends Identifiable> implements RepresentationModelAssembler<E, EntityModel<E>> {
-    private final GenericController controller;
+public class BaseAssembler<E extends Identifiable> implements RepresentationModelAssembler<E, EntityModel<E>> {
+    private final Class<? extends GenericController<E>> controllerClass;
 
-    @Autowired
-    public GenericAssembler(GenericController controller) {
-        this.controller = controller;
+    @SuppressWarnings("unchecked")
+    public BaseAssembler(@Lazy Class<? extends GenericController<E>> controllerClass) {
+        this.controllerClass = controllerClass;
     }
 
     public CollectionModel<EntityModel<E>> toListModel(List<E> entities) {
@@ -29,15 +28,15 @@ public class GenericAssembler<E extends Identifiable> implements RepresentationM
                 .map(this::toModel)
                 .collect(Collectors.toList());
 
-        return CollectionModel.of(entityModels, linkTo(methodOn(controller.getClass()).all()).withSelfRel());
+        return CollectionModel.of(entityModels, linkTo(methodOn(controllerClass).all()).withSelfRel());
     }
 
     @Override
-    public EntityModel<E> toModel(E entity) {
+    public @NotNull EntityModel<E> toModel(@NotNull E entity) {
 
         return EntityModel.of(entity,
-                linkTo(methodOn(controller.getClass()).one(entity.getId())).withSelfRel(),
-                linkTo(methodOn(controller.getClass()).all()).withRel("books")
+                linkTo(methodOn(controllerClass).one(entity.getId())).withSelfRel(),
+                linkTo(methodOn(controllerClass).all()).withRel("books")
         );
     }
 }

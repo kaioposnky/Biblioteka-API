@@ -1,7 +1,6 @@
 package org.busnake.biblioteka_api.Controller;
 
-import org.busnake.biblioteka_api.Assembler.BookModelAssembler;
-import org.busnake.biblioteka_api.Assembler.GenericAssembler;
+import org.busnake.biblioteka_api.Assembler.BookAssembler;
 import org.busnake.biblioteka_api.Exception.BookNotFoundException;
 import org.busnake.biblioteka_api.Model.Entities.Book;
 import org.busnake.biblioteka_api.Repository.BookRepository;
@@ -17,9 +16,9 @@ import static org.busnake.biblioteka_api.Helper.ResponseHelper.createSuccessResp
 @RestController
 public class BookController implements GenericController<Book> {
     private final BookRepository repository;
-    private final BookModelAssembler assembler;
+    private final BookAssembler assembler;
 
-    public BookController(BookRepository repository, BookModelAssembler assembler) {
+    public BookController(BookRepository repository, BookAssembler assembler) {
         this.repository = repository;
         this.assembler = assembler;
     }
@@ -66,8 +65,6 @@ public class BookController implements GenericController<Book> {
         Book updatedBook = repository.findById(id)
                 .map(book -> {
                     book.setTitle(newBook.getTitle());
-                    book.setAuthorId(newBook.getAuthorId());
-                    book.setGenreId(newBook.getGenreId());
                     return repository.save(book);
                 }).orElseGet(() -> {
                     return repository.save(newBook);
