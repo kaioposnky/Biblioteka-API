@@ -1,10 +1,12 @@
 package org.busnake.biblioteka_api.Assembler;
 
-import org.busnake.biblioteka_api.Controller.RESTfulController;
+import org.busnake.biblioteka_api.Controller.GenericController;
 import org.busnake.biblioteka_api.Model.Entities.Identifiable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,13 +14,14 @@ import java.util.stream.Collectors;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+@Component
 public class GenericAssembler<E extends Identifiable> implements RepresentationModelAssembler<E, EntityModel<E>> {
-    private final RESTfulController controller;
+    private final GenericController controller;
 
-    public GenericAssembler(RESTfulController controller) {
+    @Autowired
+    public GenericAssembler(GenericController controller) {
         this.controller = controller;
     }
-
 
     public CollectionModel<EntityModel<E>> toListModel(List<E> entities) {
 

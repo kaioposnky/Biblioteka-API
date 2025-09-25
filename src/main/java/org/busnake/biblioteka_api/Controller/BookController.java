@@ -1,5 +1,6 @@
 package org.busnake.biblioteka_api.Controller;
 
+import org.busnake.biblioteka_api.Assembler.BookModelAssembler;
 import org.busnake.biblioteka_api.Assembler.GenericAssembler;
 import org.busnake.biblioteka_api.Exception.BookNotFoundException;
 import org.busnake.biblioteka_api.Model.Entities.Book;
@@ -14,13 +15,13 @@ import java.util.List;
 import static org.busnake.biblioteka_api.Helper.ResponseHelper.createSuccessResponse;
 
 @RestController
-public class BookController implements RESTfulController<Book>{
+public class BookController implements GenericController<Book> {
     private final BookRepository repository;
-    private final GenericAssembler<Book> assembler;
+    private final BookModelAssembler assembler;
 
-    public BookController(BookRepository repository) {
+    public BookController(BookRepository repository, BookModelAssembler assembler) {
         this.repository = repository;
-        this.assembler = new GenericAssembler<>(this);
+        this.assembler = assembler;
     }
 
     @GetMapping("/books")
