@@ -2,10 +2,12 @@ package org.busnake.biblioteka_api.Model.Entities;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import java.util.Date;
 
 @Entity
+@Table(name = "book")
 public class Book implements Identifiable{
 
     @Id
