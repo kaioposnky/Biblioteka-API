@@ -1,44 +1,52 @@
 package org.busnake.biblioteka_api.Model.Entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "book")
 public class Book implements Identifiable{
-
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private Long id;
+
+    @Column(name = "title", nullable = false)
     private String title;
-    private Long authorId;
-    private Long genreId;
-    private Date dateCreated;
 
-    public Book(Long id, String title, Long authorId, Long genreId, Date dateCreated) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JoinColumn(name = "author_id")
+    private Author author;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JoinColumn(name = "genre_id")
+    private Genre genre;
+
+    @ColumnDefault("CURRENT_DATE")
+    @Column(name = "date_created", nullable = false)
+    private LocalDate dateCreated;
+
+    @ColumnDefault("true")
+    @Column(name = "is_available")
+    private Boolean isAvailable;
+
+    public Long getId() {
+        return id;
+    }
+
+    @Override
+    public String getCollectionRel() {
+        return "books";
+    }
+
+    public void setId(Long id) {
         this.id = id;
-        this.title = title;
-        this.authorId = authorId;
-        this.genreId = genreId;
-        this.dateCreated = dateCreated;
-    }
-
-    public Book(Long id, String title, Long authorId, Long genreId) {
-        this.id = id;
-        this.title = title;
-        this.authorId = authorId;
-        this.genreId = genreId;
-        this.dateCreated = null;
-    }
-
-    public Book() {
-
-    }
-
-    public Date getDateCreated() {
-        return dateCreated;
     }
 
     public String getTitle() {
@@ -49,33 +57,36 @@ public class Book implements Identifiable{
         this.title = title;
     }
 
-    public Long getAuthorId() {
-        return authorId;
+    public Author getAuthor() {
+        return author;
     }
 
-    public void setAuthorId(Long authorId) {
-        this.authorId = authorId;
+    public void setAuthor(Author author) {
+        this.author = author;
     }
 
-    public Long getGenreId() {
-        return genreId;
+    public Genre getGenre() {
+        return genre;
     }
 
-    public void setGenreId(Long genreId) {
-        this.genreId = genreId;
+    public void setGenre(Genre genre) {
+        this.genre = genre;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public LocalDate getDateCreated() {
+        return dateCreated;
     }
 
-    public Long getId() {
-        return id;
+    public void setDateCreated(LocalDate dateCreated) {
+        this.dateCreated = dateCreated;
     }
 
-    @Override
-    public String getCollectionRel() {
-        return "books";
+    public Boolean getIsAvailable() {
+        return isAvailable;
+    }
+
+    public void setIsAvailable(Boolean isAvailable) {
+        this.isAvailable = isAvailable;
     }
 
 }

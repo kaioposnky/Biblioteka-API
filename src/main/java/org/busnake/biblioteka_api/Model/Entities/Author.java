@@ -6,8 +6,8 @@ import org.hibernate.annotations.ColumnDefault;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "users")
-public class User implements Identifiable{
+@Table(name = "author")
+public class Author implements Identifiable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -15,12 +15,6 @@ public class User implements Identifiable{
 
     @Column(name = "name", nullable = false)
     private String name;
-
-    @Column(name = "email", nullable = false)
-    private String email;
-
-    @Column(name = "password_hash", nullable = false)
-    private String passwordHash;
 
     @ColumnDefault("CURRENT_DATE")
     @Column(name = "date_created", nullable = false)
@@ -32,7 +26,7 @@ public class User implements Identifiable{
 
     @Override
     public String getCollectionRel() {
-        return "users";
+        return "authors";
     }
 
     public void setId(Long id) {
@@ -45,22 +39,6 @@ public class User implements Identifiable{
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
     }
 
     public LocalDate getDateCreated() {
