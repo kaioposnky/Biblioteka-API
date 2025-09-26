@@ -12,6 +12,7 @@ import java.util.List;
 
 import static org.busnake.biblioteka_api.Helper.ResponseHelper.createSuccessResponse;
 
+@RestController
 public class BookLoanController implements GenericController<BookLoan> {
 
     private final BookLoanRepository repository;
