@@ -1,0 +1,7 @@
+package org.busnake.biblioteka_api.repository;
+
+import org.busnake.biblioteka_api.model.entities.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UserRepository extends JpaRepository<User, Long> {
+}

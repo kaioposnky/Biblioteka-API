@@ -1,6 +1,6 @@
 package org.busnake.biblioteka_api;
 
-import org.busnake.biblioteka_api.Repository.BookRepository;
+import org.busnake.biblioteka_api.repository.BookRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
