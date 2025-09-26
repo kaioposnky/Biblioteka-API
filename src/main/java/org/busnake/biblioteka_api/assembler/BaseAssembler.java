@@ -9,22 +9,25 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-public class BaseAssembler<E extends Identifiable> implements RepresentationModelAssembler<E, EntityModel<E>> {
+public class BaseAssembler<E extends Identifiable, D> implements RepresentationModelAssembler<E, EntityModel<D>> {
     private final Class<? extends GenericController<E>> controllerClass;
+    private final Function<E, D> toDtoConverter;
 
     @SuppressWarnings("unchecked")
-    public BaseAssembler(@Lazy Class<? extends GenericController<E>> controllerClass) {
+    public BaseAssembler(Class<? extends GenericController<E>> controllerClass, Function<E, D> toDtoConverter) {
         this.controllerClass = controllerClass;
+        this.toDtoConverter = toDtoConverter;
     }
 
-    public CollectionModel<EntityModel<E>> toListModel(List<E> entities) {
+    public CollectionModel<EntityModel<D>> toListModel(List<E> entities) {
 
-        List<EntityModel<E>> entityModels = entities.stream()
+        List<EntityModel<D>> entityModels = entities.stream()
                 .map(this::toModel)
                 .collect(Collectors.toList());
 
@@ -32,9 +35,11 @@ public class BaseAssembler<E extends Identifiable> implements RepresentationMode
     }
 
     @Override
-    public @NotNull EntityModel<E> toModel(@NotNull E entity) {
+    public @NotNull EntityModel<D> toModel(@NotNull E entity) {
 
-        return EntityModel.of(entity,
+        D dto = toDtoConverter.apply(entity);
+
+        return EntityModel.of(dto,
                 linkTo(methodOn(controllerClass).one(entity.getId())).withSelfRel(),
                 linkTo(methodOn(controllerClass).all()).withRel(entity.getCollectionRel())
         );
