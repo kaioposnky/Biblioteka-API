@@ -22,22 +22,32 @@ public class ResponseHelper {
     }
 
     public static ResponseEntity<?> createSuccessResponse(String message, HttpStatus statusCode, CollectionModel<?> entities){
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("message", message);
-        requestBody.put("data", entities);
-        requestBody.put("statusCode", statusCode);
-        requestBody.put("success", true);
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("message", message);
+        responseBody.put("data", entities);
+        responseBody.put("statusCode", statusCode);
+        responseBody.put("success", true);
 
-        return new ResponseEntity<>(requestBody, statusCode);
+        return new ResponseEntity<>(responseBody, statusCode);
     }
 
     public static ResponseEntity<?> createSuccessResponse(String message, HttpStatus statusCode, Object entity){
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("message", message);
-        requestBody.put("data", entity);
-        requestBody.put("statusCode", statusCode);
-        requestBody.put("success", true);
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("message", message);
+        responseBody.put("data", entity);
+        responseBody.put("statusCode", statusCode);
+        responseBody.put("success", true);
 
-        return new ResponseEntity<>(requestBody, statusCode);
+        return new ResponseEntity<>(responseBody, statusCode);
+    }
+
+    public static ResponseEntity<?> createErrorResponse(String message, HttpStatus statusCode) {
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("message", message);
+        responseBody.put("statusCode", statusCode);
+        responseBody.put("success", false);
+
+
+        return  new ResponseEntity<>(responseBody, statusCode);
     }
 }

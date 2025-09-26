@@ -26,6 +26,21 @@ public class User implements Identifiable{
     @Column(name = "date_created", nullable = false)
     private LocalDate dateCreated;
 
+    public User() {
+
+    }
+
+    public User(String name, String email, String passwordHash) {
+        this.name = name;
+        this.email = email;
+        this.passwordHash = passwordHash;
+    }
+
+    @PrePersist
+    private void prePersist(){
+        dateCreated = LocalDate.now();
+    }
+
     public Long getId() {
         return id;
     }
