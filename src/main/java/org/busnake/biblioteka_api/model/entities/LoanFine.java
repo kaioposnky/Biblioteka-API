@@ -1,6 +1,7 @@
 package org.busnake.biblioteka_api.model.entities;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -22,6 +23,7 @@ public class LoanFine implements Identifiable{
     @Column(name = "cost_per_day", precision = 10, scale = 2)
     private BigDecimal costPerDay;
 
+    @ColumnDefault("false")
     @Column(name = "is_payed")
     private boolean isPayed;
 

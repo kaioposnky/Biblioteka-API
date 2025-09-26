@@ -1,5 +1,6 @@
 package org.busnake.biblioteka_api.model.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
@@ -25,23 +26,7 @@ public class BookLoan implements Identifiable{
     @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 
-    public LoanFine getLoanFine() {
-        return loanFine;
-    }
-
-    public void setLoanFine(LoanFine loanFine) {
-        this.loanFine = loanFine;
-    }
-
-    public Boolean getReturned() {
-        return isReturned;
-    }
-
-    public void setReturned(Boolean returned) {
-        isReturned = returned;
-    }
-
-    @OneToOne(mappedBy = "bookLoan")
+    @OneToOne(mappedBy = "bookLoan", cascade = CascadeType.ALL, orphanRemoval = true)
     private LoanFine loanFine;
 
     @ColumnDefault("CURRENT_DATE")
@@ -119,4 +104,19 @@ public class BookLoan implements Identifiable{
         this.isReturned = isReturned;
     }
 
+    public LoanFine getLoanFine() {
+        return loanFine;
+    }
+
+    public void setLoanFine(LoanFine loanFine) {
+        this.loanFine = loanFine;
+    }
+
+    public Boolean getReturned() {
+        return isReturned;
+    }
+
+    public void setReturned(Boolean returned) {
+        isReturned = returned;
+    }
 }

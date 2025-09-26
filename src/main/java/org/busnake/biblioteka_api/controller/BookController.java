@@ -2,6 +2,7 @@ package org.busnake.biblioteka_api.controller;
 
 import org.busnake.biblioteka_api.assembler.BookAssembler;
 import org.busnake.biblioteka_api.exception.BookNotFoundException;
+import org.busnake.biblioteka_api.model.dto.responses.BookResponseDTO;
 import org.busnake.biblioteka_api.model.entities.Book;
 import org.busnake.biblioteka_api.repository.BookRepository;
 import org.springframework.hateoas.EntityModel;
@@ -69,8 +70,8 @@ public class BookController implements GenericController<Book> {
                 }).orElseGet(() -> {
                     return repository.save(newBook);
                 });
-        EntityModel<Book> model = assembler.toModel(updatedBook);
-        return createSuccessResponse("Livro atualizado com sucesso!", HttpStatus.OK, model);
+
+        return createSuccessResponse("Livro atualizado com sucesso!", HttpStatus.OK, assembler.toModel(updatedBook));
     }
 
 }

@@ -30,4 +30,14 @@ public class ResponseHelper {
 
         return new ResponseEntity<>(requestBody, statusCode);
     }
+
+    public static ResponseEntity<?> createSuccessResponse(String message, HttpStatus statusCode, Object entity){
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("message", message);
+        requestBody.put("data", entity);
+        requestBody.put("statusCode", statusCode);
+        requestBody.put("success", true);
+
+        return new ResponseEntity<>(requestBody, statusCode);
+    }
 }

@@ -2,6 +2,7 @@ package org.busnake.biblioteka_api.controller;
 
 import org.busnake.biblioteka_api.assembler.BookLoanAssembler;
 import org.busnake.biblioteka_api.exception.BookLoanNotFoundException;
+import org.busnake.biblioteka_api.model.dto.responses.BookLoanResponseDTO;
 import org.busnake.biblioteka_api.model.dto.responses.LoanDebtResponse;
 import org.busnake.biblioteka_api.model.entities.BookLoan;
 import org.busnake.biblioteka_api.repository.BookLoanRepository;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import static org.busnake.biblioteka_api.helper.ResponseHelper.createSuccessResponse;
 
@@ -21,6 +23,7 @@ public class BookLoanController implements GenericController<BookLoan> {
     private final BookLoanRepository repository;
     private final BookLoanAssembler assembler;
     private final LoanFineService loanFineService;
+    private final Logger log = Logger.getLogger(BookLoanController.class.getName());
 
     public BookLoanController(BookLoanRepository repository, BookLoanAssembler assembler, LoanFineService loanFineService) {
         this.repository = repository;
@@ -33,10 +36,14 @@ public class BookLoanController implements GenericController<BookLoan> {
     public ResponseEntity<?> all() {
         List<BookLoan> bookLoanList = repository.findAll();
 
+        List<BookLoanResponseDTO> dtoList = bookLoanList.stream()
+                .map(BookLoanResponseDTO::new)
+                .toList();
+
         return createSuccessResponse(
                 "Empréstimos de livros obtidos com sucesso!",
                 HttpStatus.OK,
-                assembler.toListModel(bookLoanList)
+                dtoList
         );
     }
 
@@ -109,6 +116,16 @@ public class BookLoanController implements GenericController<BookLoan> {
         BookLoan bookLoan = repository.findById(id).orElseThrow(
                 () -> new BookLoanNotFoundException(id)
         );
+
+        if (bookLoan.getLoanFine() == null) {
+            return createSuccessResponse(
+                    "Não existe multa para este empréstimo.",
+                    HttpStatus.OK,
+                    (Object) null
+            );
+        }
+
+        log.info(bookLoan.getLoanFine().toString());
 
         LoanDebtResponse responseModel = new LoanDebtResponse(
                 bookLoan.getBook(), bookLoan, bookLoan.getLoanFine());
