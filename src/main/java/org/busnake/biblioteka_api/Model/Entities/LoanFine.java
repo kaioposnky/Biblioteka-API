@@ -22,9 +22,6 @@ public class LoanFine implements Identifiable{
     @Column(name = "cost_per_day", precision = 10, scale = 2)
     private BigDecimal costPerDay;
 
-    @Column(name = "total_amount", precision = 10, scale = 2)
-    private BigDecimal totalAmount;
-
     @Column(name = "is_payed")
     private boolean isPayed;
 
@@ -55,14 +52,6 @@ public class LoanFine implements Identifiable{
 
     public void setCostPerDay(BigDecimal costPerDay) {
         this.costPerDay = costPerDay;
-    }
-
-    public BigDecimal getTotalAmount() {
-        return totalAmount;
-    }
-
-    public void setTotalAmount(BigDecimal totalAmount) {
-        this.totalAmount = totalAmount;
     }
 
     public boolean isPayed() {

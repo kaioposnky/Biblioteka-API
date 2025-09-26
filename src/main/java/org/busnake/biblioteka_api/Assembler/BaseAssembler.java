@@ -36,7 +36,7 @@ public class BaseAssembler<E extends Identifiable> implements RepresentationMode
 
         return EntityModel.of(entity,
                 linkTo(methodOn(controllerClass).one(entity.getId())).withSelfRel(),
-                linkTo(methodOn(controllerClass).all()).withRel("books")
+                linkTo(methodOn(controllerClass).all()).withRel(entity.getCollectionRel())
         );
     }
 }

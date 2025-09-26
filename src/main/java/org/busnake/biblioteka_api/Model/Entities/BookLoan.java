@@ -25,6 +25,25 @@ public class BookLoan implements Identifiable{
     @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 
+    public LoanFine getLoanFine() {
+        return loanFine;
+    }
+
+    public void setLoanFine(LoanFine loanFine) {
+        this.loanFine = loanFine;
+    }
+
+    public Boolean getReturned() {
+        return isReturned;
+    }
+
+    public void setReturned(Boolean returned) {
+        isReturned = returned;
+    }
+
+    @OneToOne(mappedBy = "bookLoan")
+    private LoanFine loanFine;
+
     @ColumnDefault("CURRENT_DATE")
     @Column(name = "loan_date", nullable = false)
     private LocalDate loanDate;

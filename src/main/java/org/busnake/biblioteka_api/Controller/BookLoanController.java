@@ -2,8 +2,11 @@ package org.busnake.biblioteka_api.Controller;
 
 import org.busnake.biblioteka_api.Assembler.BookLoanAssembler;
 import org.busnake.biblioteka_api.Exception.BookLoanNotFoundException;
+import org.busnake.biblioteka_api.Model.DTO.responses.LoanDebtResponse;
 import org.busnake.biblioteka_api.Model.Entities.BookLoan;
 import org.busnake.biblioteka_api.Repository.BookLoanRepository;
+import org.busnake.biblioteka_api.Service.LoanFineService;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,10 +20,12 @@ public class BookLoanController implements GenericController<BookLoan> {
 
     private final BookLoanRepository repository;
     private final BookLoanAssembler assembler;
+    private final LoanFineService loanFineService;
 
-    public BookLoanController(BookLoanRepository repository, BookLoanAssembler assembler) {
+    public BookLoanController(BookLoanRepository repository, BookLoanAssembler assembler, LoanFineService loanFineService) {
         this.repository = repository;
         this.assembler = assembler;
+        this.loanFineService = loanFineService;
     }
 
     @GetMapping("/books/loans")
@@ -95,6 +100,26 @@ public class BookLoanController implements GenericController<BookLoan> {
                 "Empréstimo de livro atualizado com sucesso!",
                 HttpStatus.OK,
                 assembler.toModel(updatedBookLoan)
+        );
+    }
+
+    @GetMapping("/books/loans/{id}/fine")
+    public ResponseEntity<?> debt(@PathVariable Long id){
+
+        BookLoan bookLoan = repository.findById(id).orElseThrow(
+                () -> new BookLoanNotFoundException(id)
+        );
+
+        LoanDebtResponse responseModel = new LoanDebtResponse(
+                bookLoan.getBook(), bookLoan, bookLoan.getLoanFine());
+
+        double loanFine = loanFineService.calculateLoanFine(bookLoan);
+        responseModel.setTotalAmount(loanFine);
+
+        return createSuccessResponse(
+                "Informações da multa do empréstimo obtidas com sucesso!",
+                HttpStatus.OK,
+                EntityModel.of(responseModel)
         );
     }
 }
