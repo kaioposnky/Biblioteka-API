@@ -50,8 +50,8 @@ public class AuthController {
         }
 
         User user = new User(
-                registerRequestDTO.getName(),
-                registerRequestDTO.getEmail(),
+                registerRequestDTO.getName().toLowerCase(),
+                registerRequestDTO.getEmail().toLowerCase(),
                 registerRequestDTO.getPassword()
         );
 
