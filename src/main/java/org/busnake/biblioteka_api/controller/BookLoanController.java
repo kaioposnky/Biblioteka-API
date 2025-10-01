@@ -110,6 +110,18 @@ public class BookLoanController implements GenericController<BookLoan> {
         );
     }
 
+    @GetMapping("/books/loans/user/{userId}")
+    public ResponseEntity<?> fromUser(@PathVariable Long userId) {
+
+        List<BookLoan> bookLoans = repository.findBookLoansByUserId(userId).stream().toList();
+
+        return createSuccessResponse(
+                "Empréstimos encontrados com sucesso!",
+                HttpStatus.OK,
+                assembler.toListModel(bookLoans)
+        );
+    }
+
     @GetMapping("/books/loans/{id}/fine")
     public ResponseEntity<?> debt(@PathVariable Long id){
 

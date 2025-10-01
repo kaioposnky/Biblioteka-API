@@ -8,7 +8,10 @@ import java.time.LocalDate;
 
 public class LoanDebtResponse {
 
+    private Long loanFineId;
+    private Long bookLoanId;
     private String bookTitle;
+    private String authorName;
     private LocalDate loanDate;
     private LocalDate dueDate;
     private LocalDate returnDate;
@@ -18,7 +21,10 @@ public class LoanDebtResponse {
     private double costPerDay;
 
     public LoanDebtResponse(Book book, BookLoan bookLoan, LoanFine loanFine){
+        this.bookLoanId = bookLoan.getId();
         this.bookTitle = book.getTitle();
+        this.authorName = book.getAuthor().getName();
+        this.loanFineId = loanFine.getId();
         this.loanDate = bookLoan.getLoanDate();
         this.dueDate = bookLoan.getDueDate();
         this.returnDate = bookLoan.getReturnDate();
@@ -89,5 +95,29 @@ public class LoanDebtResponse {
 
     public void setCostPerDay(double costPerDay) {
         this.costPerDay = costPerDay;
+    }
+
+    public Long getBookLoanId() {
+        return bookLoanId;
+    }
+
+    public void setBookLoanId(Long bookLoanId) {
+        this.bookLoanId = bookLoanId;
+    }
+
+    public Long getLoanFineId() {
+        return loanFineId;
+    }
+
+    public void setLoanFineId(Long loanFineId) {
+        this.loanFineId = loanFineId;
+    }
+
+    public String getAuthorName() {
+        return authorName;
+    }
+
+    public void setAuthorName(String authorName) {
+        this.authorName = authorName;
     }
 }
