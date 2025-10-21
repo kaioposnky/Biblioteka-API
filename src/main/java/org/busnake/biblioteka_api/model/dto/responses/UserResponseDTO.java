@@ -1,6 +1,6 @@
 package org.busnake.biblioteka_api.model.dto.responses;
 
-import org.busnake.biblioteka_api.model.entities.User;
+import org.busnake.biblioteka_api.model.entities.user.User;
 
 import java.time.LocalDate;
 

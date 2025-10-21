@@ -1,7 +1,7 @@
 package org.busnake.biblioteka_api.model.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import org.busnake.biblioteka_api.model.entities.user.User;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
