@@ -8,9 +8,11 @@ import org.busnake.biblioteka_api.model.entities.user.User;
 import org.busnake.biblioteka_api.repository.BookLoanRepository;
 import org.busnake.biblioteka_api.repository.BookRepository;
 import org.busnake.biblioteka_api.repository.UserRepository;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 
+@Service
 public class BookLoanService {
 
     private final BookLoanRepository bookLoanRepository;
@@ -38,7 +40,8 @@ public class BookLoanService {
         bookLoan.setBook(book);
         bookLoan.setDueDate(dueDate);
         bookLoan.setIsReturned(false);
+        bookLoan.setLoanDate(LocalDate.now());
 
-        return bookLoan;
+        return bookLoanRepository.save(bookLoan);
     }
 }

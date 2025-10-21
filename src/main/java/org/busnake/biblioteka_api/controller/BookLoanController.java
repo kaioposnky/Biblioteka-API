@@ -79,7 +79,7 @@ public class BookLoanController implements GenericController<BookLoan> {
 
         return createSuccessResponse(
                 "Empréstimo de livro salvo com sucesso!",
-                HttpStatus.OK,
+                HttpStatus.CREATED,
                 assembler.toModel(bookLoan)
         );
     }

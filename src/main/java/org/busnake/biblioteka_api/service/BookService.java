@@ -8,6 +8,8 @@ import org.busnake.biblioteka_api.repository.BookRepository;
 import org.busnake.biblioteka_api.repository.GenreRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+
 @Service
 public class BookService {
 
@@ -26,6 +28,7 @@ public class BookService {
                 .orElseGet(() -> {
                     Author newAuthor = new Author();
                     newAuthor.setName(authorName);
+                    newAuthor.setDateCreated(LocalDate.now());
                     return authorRepository.save(newAuthor);
                 });
 
@@ -33,6 +36,7 @@ public class BookService {
                 .orElseGet(() -> {
                     Genre newGenre = new Genre();
                     newGenre.setName(genreName);
+                    newGenre.setDateCreated(LocalDate.now());
                     return genreRepository.save(newGenre);
                 });
 
@@ -40,6 +44,7 @@ public class BookService {
         book.setTitle(title);
         book.setAuthor(author);
         book.setGenre(genre);
+        book.setDateCreated(LocalDate.now());
 
         return bookRepository.save(book);
     }
