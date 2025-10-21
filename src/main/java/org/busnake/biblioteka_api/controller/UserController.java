@@ -42,7 +42,6 @@ public class UserController implements GenericController<User> {
         return createSuccessResponse("Usuário obtido com sucesso!", HttpStatus.OK, assembler.toModel(user));
     }
 
-    @Override
     public ResponseEntity<?> save(User newUser) {
         return createErrorResponse("Endpoint desabilitado, use /auth/register.", HttpStatus.UNAUTHORIZED);
     }
@@ -60,7 +59,6 @@ public class UserController implements GenericController<User> {
     }
 
     @PutMapping("/users/{id}")
-    @Override
     public ResponseEntity<?> update(@RequestBody User updatedUser, @PathVariable Long id) {
 
         repository.findById(id).map(
