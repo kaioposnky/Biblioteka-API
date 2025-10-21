@@ -10,6 +10,7 @@ import org.busnake.biblioteka_api.model.entities.user.User;
 import org.busnake.biblioteka_api.repository.BookLoanRepository;
 import org.busnake.biblioteka_api.repository.BookRepository;
 import org.busnake.biblioteka_api.repository.UserRepository;
+import org.busnake.biblioteka_api.service.BookLoanService;
 import org.busnake.biblioteka_api.service.LoanFineService;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.logging.Logger;
 
-import static org.busnake.biblioteka_api.helper.ResponseHelper.createErrorResponse;
 import static org.busnake.biblioteka_api.helper.ResponseHelper.createSuccessResponse;
 
 @RestController
@@ -29,14 +29,16 @@ public class BookLoanController implements GenericController<BookLoan> {
     private final BookLoanRepository repository;
     private final BookLoanAssembler assembler;
     private final LoanFineService loanFineService;
+    private final BookLoanService bookLoanService;
     private final Logger log = Logger.getLogger(BookLoanController.class.getName());
     private final BookRepository bookRepository;
 
-    public BookLoanController(BookLoanRepository repository, BookLoanAssembler assembler, LoanFineService loanFineService, BookRepository bookRepository, UserRepository userRepository) {
+    public BookLoanController(BookLoanRepository repository, BookLoanAssembler assembler, LoanFineService loanFineService, BookRepository bookRepository, UserRepository userRepository, BookLoanService bookLoanService) {
         this.repository = repository;
         this.assembler = assembler;
         this.loanFineService = loanFineService;
         this.bookRepository = bookRepository;
+        this.bookLoanService = bookLoanService;
     }
 
     @GetMapping("/books/loans")
@@ -73,17 +75,13 @@ public class BookLoanController implements GenericController<BookLoan> {
     @PostMapping("/books/loans")
     public ResponseEntity<?> save(@RequestBody BookLoanDTO data, @AuthenticationPrincipal User currentUser) {
 
-        BookLoan bookLoan = new BookLoan(bookRepository, currentUser, data.bookId(), data.returnDate());
+        BookLoan bookLoan = bookLoanService.saveBookLoan(currentUser.getId(), data.bookId(), data.dueDate());
 
         return createSuccessResponse(
                 "Empréstimo de livro salvo com sucesso!",
                 HttpStatus.OK,
                 assembler.toModel(bookLoan)
         );
-    }
-
-    public ResponseEntity<?> save(@RequestBody BookLoan entity) {
-        return createErrorResponse("Endpoint desabilitado", HttpStatus.UNAUTHORIZED);
     }
 
     @DeleteMapping("/books/loans/{id}")
