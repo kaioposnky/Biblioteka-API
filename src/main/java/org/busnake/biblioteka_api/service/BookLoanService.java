@@ -35,12 +35,23 @@ public class BookLoanService {
                 () -> new BookNotFoundException(bookId)
         );
 
+        if(!book.getIsAvailable()){
+            return null;
+        }
+
         BookLoan bookLoan = new BookLoan();
         bookLoan.setUser(user);
         bookLoan.setBook(book);
         bookLoan.setDueDate(dueDate);
         bookLoan.setIsReturned(false);
         bookLoan.setLoanDate(LocalDate.now());
+
+        // Atualiza o livro deixando ele indisponível
+        bookRepository.findById(book.getId())
+                .map(updatedBook -> {
+                    updatedBook.setIsAvailable(false);
+                    return bookRepository.save(updatedBook);
+                });
 
         return bookLoanRepository.save(bookLoan);
     }

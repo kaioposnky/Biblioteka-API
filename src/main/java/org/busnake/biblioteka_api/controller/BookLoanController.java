@@ -2,6 +2,8 @@ package org.busnake.biblioteka_api.controller;
 
 import org.busnake.biblioteka_api.assembler.BookLoanAssembler;
 import org.busnake.biblioteka_api.exception.BookLoanNotFoundException;
+import org.busnake.biblioteka_api.exception.BookNotFoundException;
+import org.busnake.biblioteka_api.exception.UserNotFoundException;
 import org.busnake.biblioteka_api.model.dto.requests.BookLoanDTO;
 import org.busnake.biblioteka_api.model.dto.responses.BookLoanResponseDTO;
 import org.busnake.biblioteka_api.model.dto.responses.LoanDebtResponse;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.logging.Logger;
 
+import static org.busnake.biblioteka_api.helper.ResponseHelper.createErrorResponse;
 import static org.busnake.biblioteka_api.helper.ResponseHelper.createSuccessResponse;
 
 @RestController
@@ -75,7 +78,16 @@ public class BookLoanController implements GenericController<BookLoan> {
     @PostMapping("/books/loans")
     public ResponseEntity<?> save(@RequestBody BookLoanDTO data, @AuthenticationPrincipal User currentUser) {
 
-        BookLoan bookLoan = bookLoanService.saveBookLoan(currentUser.getId(), data.bookId(), data.dueDate());
+        BookLoan bookLoan;
+        try{
+            bookLoan = bookLoanService.saveBookLoan(currentUser.getId(), data.bookId(), data.dueDate());
+        } catch (BookNotFoundException | UserNotFoundException ex){
+            return createErrorResponse("Livro ou usuário não encontrados!", HttpStatus.NOT_FOUND);
+        }
+
+        if(bookLoan == null){
+            return createErrorResponse("Livro indisponível para empréstimo.", HttpStatus.BAD_REQUEST);
+        }
 
         return createSuccessResponse(
                 "Empréstimo de livro salvo com sucesso!",
