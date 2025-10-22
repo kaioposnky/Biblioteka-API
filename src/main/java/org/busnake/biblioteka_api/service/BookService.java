@@ -45,6 +45,7 @@ public class BookService {
         book.setAuthor(author);
         book.setGenre(genre);
         book.setDateCreated(LocalDate.now());
+        book.setIsAvailable(true);
 
         return bookRepository.save(book);
     }
