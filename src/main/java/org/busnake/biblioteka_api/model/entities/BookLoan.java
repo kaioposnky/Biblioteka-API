@@ -1,7 +1,8 @@
 package org.busnake.biblioteka_api.model.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import org.busnake.biblioteka_api.model.entities.user.User;
+import org.busnake.biblioteka_api.repository.BookRepository;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -42,6 +43,16 @@ public class BookLoan implements Identifiable{
     @ColumnDefault("false")
     @Column(name = "is_returned")
     private Boolean isReturned;
+
+    public BookLoan(){}
+
+    public BookLoan(BookRepository bookRepository, User user, Long bookId, LocalDate returnDate){
+        this.book = bookRepository.findById(bookId).orElseThrow();
+        this.returnDate = returnDate;
+        this.dueDate = LocalDate.MIN;
+        this.loanDate = LocalDate.now();
+        this.user = user;
+    }
 
     public Long getId() {
         return id;

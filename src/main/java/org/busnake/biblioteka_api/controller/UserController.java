@@ -2,7 +2,7 @@ package org.busnake.biblioteka_api.controller;
 
 import org.busnake.biblioteka_api.assembler.UserAssembler;
 import org.busnake.biblioteka_api.exception.UserNotFoundException;
-import org.busnake.biblioteka_api.model.entities.User;
+import org.busnake.biblioteka_api.model.entities.user.User;
 import org.busnake.biblioteka_api.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static org.busnake.biblioteka_api.helper.ResponseHelper.createErrorResponse;
 import static org.busnake.biblioteka_api.helper.ResponseHelper.createSuccessResponse;
 
 @RestController
@@ -41,12 +42,8 @@ public class UserController implements GenericController<User> {
         return createSuccessResponse("Usuário obtido com sucesso!", HttpStatus.OK, assembler.toModel(user));
     }
 
-    @PostMapping("/users")
-    @Override
     public ResponseEntity<?> save(User newUser) {
-        User user = repository.save(newUser);
-
-        return createSuccessResponse("Usuário criado com sucesso!", HttpStatus.CREATED, assembler.toModel(user));
+        return createErrorResponse("Endpoint desabilitado, use /auth/register.", HttpStatus.UNAUTHORIZED);
     }
 
     @DeleteMapping("/users/{id}")
@@ -62,7 +59,6 @@ public class UserController implements GenericController<User> {
     }
 
     @PutMapping("/users/{id}")
-    @Override
     public ResponseEntity<?> update(@RequestBody User updatedUser, @PathVariable Long id) {
 
         repository.findById(id).map(
