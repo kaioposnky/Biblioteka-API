@@ -82,4 +82,17 @@ public class BookController implements GenericController<Book> {
         return createSuccessResponse("Livro atualizado com sucesso!", HttpStatus.OK, assembler.toModel(updatedBook));
     }
 
+    @GetMapping("/books/search")
+    public ResponseEntity<?> search(@RequestParam(required = false) String title, @RequestParam(required = false) Boolean isAvailable){
+        if (title == null) title = "";
+        if (isAvailable == null) isAvailable = true;
+        List<Book> books = repository.findBooksByTitleAndAvailability(title, isAvailable);
+
+        return createSuccessResponse(
+                "Livros encontrados com sucesso!",
+                HttpStatus.OK,
+                assembler.toListModel(books)
+        );
+    }
+
 }
