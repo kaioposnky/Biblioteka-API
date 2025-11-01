@@ -47,7 +47,7 @@ public class AuthController {
 
         User user = userRepository.findByEmail(loginRequest.getEmail());
 
-        LoginResponseDTO loginResponseDTO = new LoginResponseDTO(token, user.getId(), user.getName(), user.getEmail());
+        LoginResponseDTO loginResponseDTO = new LoginResponseDTO(token, user.getId(), user.getName(), user.getEmail(), user.getRole());
 
         return createSuccessResponse("Usuário logado com sucesso!", HttpStatus.OK, loginResponseDTO);
     }
