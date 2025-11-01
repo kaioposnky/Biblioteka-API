@@ -2,10 +2,13 @@ package org.busnake.biblioteka_api.controller;
 
 import org.busnake.biblioteka_api.assembler.UserAssembler;
 import org.busnake.biblioteka_api.exception.UserNotFoundException;
+import org.busnake.biblioteka_api.model.dto.requests.UserUpdateDTO;
 import org.busnake.biblioteka_api.model.entities.user.User;
 import org.busnake.biblioteka_api.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -58,19 +61,25 @@ public class UserController implements GenericController<User> {
         return createSuccessResponse("Usuário deletado com sucesso!", HttpStatus.OK, assembler.toModel(user));
     }
 
-    @PutMapping("/users/{id}")
-    public ResponseEntity<?> update(@RequestBody User updatedUser, @PathVariable Long id) {
+    @PutMapping("/users")
+    public ResponseEntity<?> update(@RequestBody UserUpdateDTO updatedInfo, @AuthenticationPrincipal User userLogged) {
+        Long userId = userLogged.getId();
 
-        repository.findById(id).map(
-                (user -> {
-                    user.setName(updatedUser.getName());
-                    user.setPasswordHash(updatedUser.getPasswordHash());
-                    return repository.save(user);
+        String passwordHash;
+        if (updatedInfo.password() == null || updatedInfo.password().isBlank()){
+            passwordHash = new BCryptPasswordEncoder().encode(updatedInfo.password());
+        } else {
+            passwordHash = null;
+        }
+
+        repository.findById(userId).map(
+                (userFound -> {
+                    if(updatedInfo.name() != null) userFound.setName(updatedInfo.name());
+                    if(passwordHash != null) userFound.setPasswordHash(passwordHash);
+                    return repository.save(userFound);
                 })
-        ).orElseGet(() -> {
-            return repository.save(updatedUser);
-        });
+        ).orElseThrow(() -> new UserNotFoundException(userId));
 
-        return createSuccessResponse("Usuário atualizado com sucesso!", HttpStatus.OK, assembler.toModel(updatedUser));
+        return createSuccessResponse("Usuário atualizado com sucesso!", HttpStatus.OK);
     }
 }
