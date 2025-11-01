@@ -1,16 +1,20 @@
 package org.busnake.biblioteka_api.model.dto.responses;
 
+import org.busnake.biblioteka_api.model.entities.user.UserRole;
+
 public class LoginResponseDTO {
     private String jwtToken;
     private Long userId;
     private String name;
     private String email;
+    private UserRole role;
 
-    public LoginResponseDTO(String jwtToken, Long userId, String name, String email) {
+    public LoginResponseDTO(String jwtToken, Long userId, String name, String email, UserRole role) {
         this.jwtToken = jwtToken;
         this.userId = userId;
         this.name = name;
         this.email = email;
+        this.role = role;
     }
 
     public String getJwtToken() {
@@ -45,4 +49,11 @@ public class LoginResponseDTO {
         this.email = email;
     }
 
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
+    }
 }

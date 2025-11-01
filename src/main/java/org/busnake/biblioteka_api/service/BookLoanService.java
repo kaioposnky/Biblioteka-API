@@ -1,16 +1,20 @@
 package org.busnake.biblioteka_api.service;
 
+import org.busnake.biblioteka_api.exception.BookLoanNotFoundException;
 import org.busnake.biblioteka_api.exception.BookNotFoundException;
 import org.busnake.biblioteka_api.exception.UserNotFoundException;
 import org.busnake.biblioteka_api.model.entities.Book;
 import org.busnake.biblioteka_api.model.entities.BookLoan;
+import org.busnake.biblioteka_api.model.entities.BookReservation;
 import org.busnake.biblioteka_api.model.entities.user.User;
 import org.busnake.biblioteka_api.repository.BookLoanRepository;
 import org.busnake.biblioteka_api.repository.BookRepository;
+import org.busnake.biblioteka_api.repository.BookReservationRepository;
 import org.busnake.biblioteka_api.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class BookLoanService {
@@ -18,11 +22,13 @@ public class BookLoanService {
     private final BookLoanRepository bookLoanRepository;
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
+    private final BookReservationRepository bookReservationRepository;
 
-    public BookLoanService(BookLoanRepository bookLoanRepository, UserRepository userRepository, BookRepository bookRepository) {
+    public BookLoanService(BookLoanRepository bookLoanRepository, UserRepository userRepository, BookRepository bookRepository, BookReservationRepository bookReservationRepository) {
         this.bookLoanRepository = bookLoanRepository;
         this.userRepository = userRepository;
         this.bookRepository = bookRepository;
+        this.bookReservationRepository = bookReservationRepository;
     }
 
     public BookLoan saveBookLoan(Long userId, Long bookId, LocalDate dueDate) {
@@ -39,6 +45,16 @@ public class BookLoanService {
             return null;
         }
 
+        // checar se tem reservas no periodo
+        LocalDate loanStartDate = LocalDate.now();
+        List<BookReservation> conflictingReservations = bookReservationRepository
+                .findConflictingReservations(bookId, loanStartDate, dueDate);
+
+        // Se existe tiver conflito cancela
+        if (!conflictingReservations.isEmpty()) {
+            return null;
+        }
+
         BookLoan bookLoan = new BookLoan();
         bookLoan.setUser(user);
         bookLoan.setBook(book);
@@ -52,6 +68,39 @@ public class BookLoanService {
                     updatedBook.setIsAvailable(false);
                     return bookRepository.save(updatedBook);
                 });
+
+        return bookLoanRepository.save(bookLoan);
+    }
+
+    public BookLoan renewBookLoan(Long bookLoanId, LocalDate newDueDate) {
+
+        // Buscar o empréstimo
+        BookLoan bookLoan = bookLoanRepository.findById(bookLoanId).orElseThrow(
+                () -> new BookLoanNotFoundException(bookLoanId)
+        );
+
+        // Verificar se o empréstimo já foi devolvido
+        if (bookLoan.getIsReturned()) {
+            throw new IllegalStateException("Não é possível renovar um empréstimo já devolvido");
+        }
+
+        // Verificar se a nova data é posterior à data atual de vencimento
+        if (newDueDate.isBefore(bookLoan.getDueDate()) || newDueDate.isBefore(LocalDate.now())) {
+            throw new IllegalStateException("A nova data de vencimento deve ser posterior à data atual de vencimento e à data atual");
+        }
+
+        // Verificar conflitos com reservas no novo período
+        // Período a verificar: da data atual de vencimento até a nova data de vencimento
+        LocalDate checkStartDate = bookLoan.getDueDate().plusDays(1);
+        List<BookReservation> conflictingReservations = bookReservationRepository
+                .findConflictingReservations(bookLoan.getBook().getId(), checkStartDate, newDueDate);
+
+        if (!conflictingReservations.isEmpty()) {
+            throw new IllegalStateException("Existe uma reserva no período solicitado para renovação");
+        }
+
+        // Se passou em todas as validações, atualizar a data de vencimento
+        bookLoan.setDueDate(newDueDate);
 
         return bookLoanRepository.save(bookLoan);
     }
