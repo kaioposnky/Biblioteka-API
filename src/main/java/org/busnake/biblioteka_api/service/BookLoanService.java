@@ -4,13 +4,16 @@ import org.busnake.biblioteka_api.exception.BookNotFoundException;
 import org.busnake.biblioteka_api.exception.UserNotFoundException;
 import org.busnake.biblioteka_api.model.entities.Book;
 import org.busnake.biblioteka_api.model.entities.BookLoan;
+import org.busnake.biblioteka_api.model.entities.BookReservation;
 import org.busnake.biblioteka_api.model.entities.user.User;
 import org.busnake.biblioteka_api.repository.BookLoanRepository;
 import org.busnake.biblioteka_api.repository.BookRepository;
+import org.busnake.biblioteka_api.repository.BookReservationRepository;
 import org.busnake.biblioteka_api.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class BookLoanService {
@@ -18,11 +21,13 @@ public class BookLoanService {
     private final BookLoanRepository bookLoanRepository;
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
+    private final BookReservationRepository bookReservationRepository;
 
-    public BookLoanService(BookLoanRepository bookLoanRepository, UserRepository userRepository, BookRepository bookRepository) {
+    public BookLoanService(BookLoanRepository bookLoanRepository, UserRepository userRepository, BookRepository bookRepository, BookReservationRepository bookReservationRepository) {
         this.bookLoanRepository = bookLoanRepository;
         this.userRepository = userRepository;
         this.bookRepository = bookRepository;
+        this.bookReservationRepository = bookReservationRepository;
     }
 
     public BookLoan saveBookLoan(Long userId, Long bookId, LocalDate dueDate) {
@@ -36,6 +41,16 @@ public class BookLoanService {
         );
 
         if(!book.getIsAvailable()){
+            return null;
+        }
+
+        // checar se tem reservas no periodo
+        LocalDate loanStartDate = LocalDate.now();
+        List<BookReservation> conflictingReservations = bookReservationRepository
+                .findConflictingReservations(bookId, loanStartDate, dueDate);
+
+        // Se existe tiver conflito cancela
+        if (!conflictingReservations.isEmpty()) {
             return null;
         }
 

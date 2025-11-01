@@ -5,14 +5,18 @@ import org.busnake.biblioteka_api.exception.BookLoanNotFoundException;
 import org.busnake.biblioteka_api.exception.BookNotFoundException;
 import org.busnake.biblioteka_api.exception.UserNotFoundException;
 import org.busnake.biblioteka_api.model.dto.requests.BookLoanDTO;
+import org.busnake.biblioteka_api.model.dto.requests.BookReservationRequestDTO;
 import org.busnake.biblioteka_api.model.dto.responses.BookLoanResponseDTO;
 import org.busnake.biblioteka_api.model.dto.responses.LoanDebtResponse;
+import org.busnake.biblioteka_api.model.entities.Book;
 import org.busnake.biblioteka_api.model.entities.BookLoan;
+import org.busnake.biblioteka_api.model.entities.BookReservation;
 import org.busnake.biblioteka_api.model.entities.user.User;
 import org.busnake.biblioteka_api.repository.BookLoanRepository;
 import org.busnake.biblioteka_api.repository.BookRepository;
 import org.busnake.biblioteka_api.repository.UserRepository;
 import org.busnake.biblioteka_api.service.BookLoanService;
+import org.busnake.biblioteka_api.service.BookReservationService;
 import org.busnake.biblioteka_api.service.LoanFineService;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
@@ -33,15 +37,15 @@ public class BookLoanController implements GenericController<BookLoan> {
     private final BookLoanAssembler assembler;
     private final LoanFineService loanFineService;
     private final BookLoanService bookLoanService;
+    private final BookReservationService bookReservationService;
     private final Logger log = Logger.getLogger(BookLoanController.class.getName());
-    private final BookRepository bookRepository;
 
-    public BookLoanController(BookLoanRepository repository, BookLoanAssembler assembler, LoanFineService loanFineService, BookRepository bookRepository, UserRepository userRepository, BookLoanService bookLoanService) {
+    public BookLoanController(BookLoanRepository repository, BookLoanAssembler assembler, LoanFineService loanFineService, BookLoanService bookLoanService, BookReservationService bookReservationService) {
         this.repository = repository;
         this.assembler = assembler;
         this.loanFineService = loanFineService;
-        this.bookRepository = bookRepository;
         this.bookLoanService = bookLoanService;
+        this.bookReservationService = bookReservationService;
     }
 
     @GetMapping("/books/loans")
@@ -170,5 +174,30 @@ public class BookLoanController implements GenericController<BookLoan> {
                 HttpStatus.OK,
                 EntityModel.of(responseModel)
         );
+    }
+
+    @PostMapping("/books/{bookId}/loans/reservate")
+    public ResponseEntity<?> reservate(@PathVariable Long bookId, @RequestBody BookReservationRequestDTO request, @AuthenticationPrincipal User user){
+        try {
+            BookReservation bookReservation = bookReservationService.createReservation(
+                    bookId, 
+                    user.getId(), 
+                    request.loanStartDate(), 
+                    request.dueDate()
+            );
+
+            return createSuccessResponse(
+                    "Reserva de livro criada com sucesso!",
+                    HttpStatus.CREATED,
+                    bookReservation
+            );
+
+        } catch (BookNotFoundException ex) {
+            return createErrorResponse("Livro não encontrado!", HttpStatus.NOT_FOUND);
+        } catch (UserNotFoundException ex) {
+            return createErrorResponse("Usuário não encontrado!", HttpStatus.NOT_FOUND);
+        } catch (IllegalStateException ex) {
+            return createErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 }
