@@ -24,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -196,6 +197,24 @@ public class BookLoanController implements GenericController<BookLoan> {
             return createErrorResponse("Livro não encontrado!", HttpStatus.NOT_FOUND);
         } catch (UserNotFoundException ex) {
             return createErrorResponse("Usuário não encontrado!", HttpStatus.NOT_FOUND);
+        } catch (IllegalStateException ex) {
+            return createErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/books/loans/{id}/renovate")
+    public ResponseEntity<?> renovate(@PathVariable Long id, @RequestBody LocalDate newDueDate){
+        try {
+            BookLoan renewedBookLoan = bookLoanService.renewBookLoan(id, newDueDate);
+
+            return createSuccessResponse(
+                    "Empréstimo renovado com sucesso!",
+                    HttpStatus.OK,
+                    assembler.toModel(renewedBookLoan)
+            );
+
+        } catch (BookLoanNotFoundException ex) {
+            return createErrorResponse("Empréstimo não encontrado!", HttpStatus.NOT_FOUND);
         } catch (IllegalStateException ex) {
             return createErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
