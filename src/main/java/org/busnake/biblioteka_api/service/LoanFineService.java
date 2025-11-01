@@ -1,15 +1,24 @@
 package org.busnake.biblioteka_api.service;
 
 import org.busnake.biblioteka_api.model.entities.BookLoan;
+import org.busnake.biblioteka_api.model.entities.LoanFine;
+import org.busnake.biblioteka_api.repository.LoanFineRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 public class LoanFineService {
 
+    private final BigDecimal COST_PER_DAY = BigDecimal.valueOf(0.80);
+    private final LoanFineRepository loanFineRepository;
+
+    public LoanFineService(LoanFineRepository loanFineRepository) {
+        this.loanFineRepository = loanFineRepository;
+    }
 
     /**
      * Calcula a multa de empréstimo baseada na data de entrega esperada e a data de entrega real.
@@ -37,6 +46,18 @@ public class LoanFineService {
             return totalCost.doubleValue();
         } catch (Exception ex){
             throw ex;
+        }
+    }
+
+    public void generateLoanFines(List<BookLoan> bookLoans){
+        for(BookLoan bookLoan : bookLoans){
+
+            LoanFine loanFine = new LoanFine();
+            loanFine.setBookLoan(bookLoan);
+            loanFine.setCostPerDay(COST_PER_DAY);
+            loanFine.setPayed(false);
+
+            loanFineRepository.save(loanFine);
         }
     }
 }
