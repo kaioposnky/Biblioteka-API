@@ -157,7 +157,7 @@ public class BookLoanController implements GenericController<BookLoan> {
         if (bookLoan.getLoanFine() == null) {
             return createSuccessResponse(
                     "Não existe multa para este empréstimo.",
-                    HttpStatus.OK,
+                    HttpStatus.NOT_FOUND,
                     (Object) null
             );
         }
