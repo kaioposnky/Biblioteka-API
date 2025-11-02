@@ -31,6 +31,17 @@ public class BookReservation {
     @Column(name = "due_date", nullable = false)
     private LocalDate dueDate;
 
+    @OneToOne(mappedBy = "bookReservation")
+    private BookLoan bookLoan;
+
+    public BookLoan getBookLoan() {
+        return bookLoan;
+    }
+
+    public void setBookLoan(BookLoan bookLoan) {
+        this.bookLoan = bookLoan;
+    }
+
     public Long getId() {
         return id;
     }

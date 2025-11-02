@@ -1,7 +1,12 @@
 package org.busnake.biblioteka_api.service;
 
+import org.springframework.transaction.annotation.Transactional;
+import org.busnake.biblioteka_api.exception.LoanFineNotFoundException;
+import org.busnake.biblioteka_api.model.entities.Book;
 import org.busnake.biblioteka_api.model.entities.BookLoan;
 import org.busnake.biblioteka_api.model.entities.LoanFine;
+import org.busnake.biblioteka_api.repository.BookLoanRepository;
+import org.busnake.biblioteka_api.repository.BookRepository;
 import org.busnake.biblioteka_api.repository.LoanFineRepository;
 import org.springframework.stereotype.Service;
 
@@ -15,9 +20,14 @@ public class LoanFineService {
 
     private final BigDecimal COST_PER_DAY = BigDecimal.valueOf(0.80);
     private final LoanFineRepository loanFineRepository;
+    private final BookRepository bookRepository;
+    private final BookLoanRepository bookLoanRepository;
 
-    public LoanFineService(LoanFineRepository loanFineRepository) {
+    public LoanFineService(LoanFineRepository loanFineRepository, BookRepository bookRepository,
+                           BookLoanRepository bookLoanRepository) {
         this.loanFineRepository = loanFineRepository;
+        this.bookRepository = bookRepository;
+        this.bookLoanRepository = bookLoanRepository;
     }
 
     /**
@@ -59,5 +69,33 @@ public class LoanFineService {
 
             loanFineRepository.save(loanFine);
         }
+    }
+
+    @Transactional
+    public LoanFine payLoanFine(Long loanFineId, Long userId){
+        LoanFine loanFine = loanFineRepository.findById(loanFineId).orElseThrow(
+                () -> new LoanFineNotFoundException(loanFineId)
+        );
+
+        if(!loanFine.getBookLoan().getUser().getId().equals(userId)){
+            throw new IllegalStateException("Usuário não autorizado.");
+        }
+
+        if(loanFine.isPayed()){
+            throw new IllegalStateException("A multa já foi paga!");
+        }
+
+        // Aqui teria uma lógica para o usuário pagar a multa por exemplo
+
+        loanFine.setPayed(true);
+        BookLoan bookLoan = loanFine.getBookLoan();
+        bookLoan.setReturned(true);
+        bookLoan.setReturnDate(LocalDate.now());
+
+        Book book = bookLoan.getBook();
+        book.setIsAvailable(true);
+
+
+        return loanFine;
     }
 }

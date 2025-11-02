@@ -3,6 +3,7 @@ package org.busnake.biblioteka_api.controller;
 import org.busnake.biblioteka_api.assembler.BookLoanAssembler;
 import org.busnake.biblioteka_api.exception.BookLoanNotFoundException;
 import org.busnake.biblioteka_api.exception.BookNotFoundException;
+import org.busnake.biblioteka_api.exception.LoanFineNotFoundException;
 import org.busnake.biblioteka_api.exception.UserNotFoundException;
 import org.busnake.biblioteka_api.model.dto.requests.BookLoanDTO;
 import org.busnake.biblioteka_api.model.dto.requests.BookReservationRequestDTO;
@@ -39,14 +40,15 @@ public class BookLoanController implements GenericController<BookLoan> {
     private final LoanFineService loanFineService;
     private final BookLoanService bookLoanService;
     private final BookReservationService bookReservationService;
-    private final Logger log = Logger.getLogger(BookLoanController.class.getName());
+    private final BookRepository bookRepository;
 
-    public BookLoanController(BookLoanRepository repository, BookLoanAssembler assembler, LoanFineService loanFineService, BookLoanService bookLoanService, BookReservationService bookReservationService) {
+    public BookLoanController(BookLoanRepository repository, BookLoanAssembler assembler, LoanFineService loanFineService, BookLoanService bookLoanService, BookReservationService bookReservationService, BookRepository bookRepository) {
         this.repository = repository;
         this.assembler = assembler;
         this.loanFineService = loanFineService;
         this.bookLoanService = bookLoanService;
         this.bookReservationService = bookReservationService;
+        this.bookRepository = bookRepository;
     }
 
     @GetMapping("/books/loans")
@@ -109,6 +111,8 @@ public class BookLoanController implements GenericController<BookLoan> {
                 () -> new BookLoanNotFoundException(id)
         );
 
+        repository.deleteById(id);
+
         return createSuccessResponse(
                 "Empréstimo de livro deletado com sucesso!",
                 HttpStatus.OK,
@@ -162,8 +166,6 @@ public class BookLoanController implements GenericController<BookLoan> {
             );
         }
 
-        log.info(bookLoan.getLoanFine().toString());
-
         LoanDebtResponse responseModel = new LoanDebtResponse(
                 bookLoan.getBook(), bookLoan, bookLoan.getLoanFine());
 
@@ -203,9 +205,9 @@ public class BookLoanController implements GenericController<BookLoan> {
     }
 
     @PostMapping("/books/loans/{id}/renovate")
-    public ResponseEntity<?> renovate(@PathVariable Long id, @RequestBody LocalDate newDueDate){
+    public ResponseEntity<?> renovate(@PathVariable Long id, @RequestBody LocalDate newDueDate, @AuthenticationPrincipal User user){
         try {
-            BookLoan renewedBookLoan = bookLoanService.renewBookLoan(id, newDueDate);
+            BookLoan renewedBookLoan = bookLoanService.renewBookLoan(id, newDueDate, user.getId());
 
             return createSuccessResponse(
                     "Empréstimo renovado com sucesso!",
@@ -218,5 +220,20 @@ public class BookLoanController implements GenericController<BookLoan> {
         } catch (IllegalStateException ex) {
             return createErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping("/books/{bookId}/loans")
+    private ResponseEntity<?> bookLoans(@PathVariable Long bookId){
+        Book book = bookRepository.findById(bookId).orElseThrow(
+                () -> new BookNotFoundException(bookId)
+        );
+
+        List<BookLoan> bookLoans = repository.getBookLoansByBook(book);
+
+        return createSuccessResponse(
+                "Livros encontrados com sucesso!",
+                HttpStatus.OK,
+                assembler.toListModel(bookLoans)
+        );
     }
 }

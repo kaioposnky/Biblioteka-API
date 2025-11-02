@@ -1,9 +1,12 @@
 package org.busnake.biblioteka_api.controller;
 
 import org.busnake.biblioteka_api.assembler.UserAssembler;
+import org.busnake.biblioteka_api.exception.BookLoanNotFoundException;
 import org.busnake.biblioteka_api.exception.UserNotFoundException;
 import org.busnake.biblioteka_api.model.dto.requests.UserUpdateDTO;
+import org.busnake.biblioteka_api.model.entities.BookLoan;
 import org.busnake.biblioteka_api.model.entities.user.User;
+import org.busnake.biblioteka_api.repository.BookLoanRepository;
 import org.busnake.biblioteka_api.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,10 +23,12 @@ import static org.busnake.biblioteka_api.helper.ResponseHelper.createSuccessResp
 public class UserController implements GenericController<User> {
 
     private final UserRepository repository;
+    private final BookLoanRepository bookLoanRepository;
     private final UserAssembler assembler;
 
-    public UserController(UserRepository userRepository, UserAssembler assembler) {
+    public UserController(UserRepository userRepository, BookLoanRepository bookLoanRepository, UserAssembler assembler) {
         this.repository = userRepository;
+        this.bookLoanRepository = bookLoanRepository;
         this.assembler = assembler;
     }
 
@@ -81,5 +86,20 @@ public class UserController implements GenericController<User> {
         ).orElseThrow(() -> new UserNotFoundException(userId));
 
         return createSuccessResponse("Usuário atualizado com sucesso!", HttpStatus.OK);
+    }
+
+    @GetMapping("/books/loans/{loanId}/user")
+    public ResponseEntity<?> loanUser(@PathVariable Long loanId){
+        BookLoan bookLoan = bookLoanRepository.findById(loanId).orElseThrow(
+                () -> new BookLoanNotFoundException(loanId)
+        );
+
+        User user = bookLoan.getUser();
+
+        return createSuccessResponse(
+                "Usuário encontrado com sucesso!",
+                HttpStatus.OK,
+                assembler.toModel(user)
+        );
     }
 }
