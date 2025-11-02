@@ -110,4 +110,15 @@ public class BookLoanService {
 
         return bookLoanRepository.save(bookLoan);
     }
+
+    public void generateBookLoansFromReservations(List<BookReservation> bookReservations){
+        for(BookReservation bookReservation : bookReservations){
+            BookLoan bookLoan = new BookLoan();
+            bookLoan.setReturned(false);
+            bookLoan.setReturnDate(bookReservation.getDueDate());
+            bookLoan.setLoanDate(bookLoan.getLoanDate());
+            bookLoan.setUser(bookReservation.getUser());
+            bookLoan.setBook(bookReservation.getBook());
+        }
+    }
 }

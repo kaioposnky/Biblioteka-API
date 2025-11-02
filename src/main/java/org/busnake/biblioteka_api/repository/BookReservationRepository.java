@@ -1,5 +1,6 @@
 package org.busnake.biblioteka_api.repository;
 
+import org.busnake.biblioteka_api.model.entities.BookLoan;
 import org.busnake.biblioteka_api.model.entities.BookReservation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,4 +19,6 @@ public interface BookReservationRepository extends JpaRepository<BookReservation
 
     @Query("SELECT br FROM BookReservation br WHERE br.user.id = :userId AND br.dueDate >= CURRENT_DATE")
     List<BookReservation> findActiveReservationsByUserId(@Param("userId") Long userId);
+
+    List<BookReservation> findAllByLoanStartDateGreaterThanEqualAndBookLoanIsNull(LocalDate loanStartDateIsGreaterThan);
 }

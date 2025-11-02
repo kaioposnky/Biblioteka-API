@@ -130,4 +130,16 @@ public class BookLoan implements Identifiable{
     public void setReturned(Boolean returned) {
         isReturned = returned;
     }
+
+    @OneToOne
+    @JoinColumn(name = "book_reservation_id", referencedColumnName = "id")
+    private BookReservation bookReservation;
+
+    public BookReservation getBookReservation() {
+        return bookReservation;
+    }
+
+    public void setBookReservation(BookReservation bookReservation) {
+        this.bookReservation = bookReservation;
+    }
 }
