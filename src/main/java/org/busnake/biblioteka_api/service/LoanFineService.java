@@ -72,7 +72,7 @@ public class LoanFineService {
     }
 
     @Transactional
-    public void payLoanFine(Long loanFineId, Long userId){
+    public LoanFine payLoanFine(Long loanFineId, Long userId){
         LoanFine loanFine = loanFineRepository.findById(loanFineId).orElseThrow(
                 () -> new LoanFineNotFoundException(loanFineId)
         );

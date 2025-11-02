@@ -77,14 +77,15 @@ public class LoanFineController implements GenericController<LoanFine> {
         );
     }
 
-    @PostMapping("/books/loans/fines/{id}/pay")
+    @PostMapping("/loans/fines/{id}/pay")
     public ResponseEntity<?> pay(@PathVariable Long id, @AuthenticationPrincipal User user){
         try {
-            loanFineService.payLoanFine(id, user.getId());
+            LoanFine loanFine = loanFineService.payLoanFine(id, user.getId());
 
             return createSuccessResponse(
                     "Multa paga com sucesso!",
-                    HttpStatus.OK
+                    HttpStatus.OK,
+                    assembler.toModel(loanFine)
             );
 
         } catch (BookLoanNotFoundException ex) {

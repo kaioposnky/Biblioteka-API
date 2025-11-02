@@ -14,14 +14,14 @@ public class LoanFineResponseDTO implements ResponseDTO<LoanFine, LoanFineRespon
     private LocalDate dueDate;
     private LocalDate returnDate;
     private BigDecimal costPerDay;
-    private boolean isPayed;
+    private boolean payed;
 
     public LoanFineResponseDTO() {}
 
     public LoanFineResponseDTO(LoanFine loanFine) {
         this.id = loanFine.getId();
         this.costPerDay = loanFine.getCostPerDay();
-        this.isPayed = loanFine.isPayed();
+        this.payed = loanFine.isPayed();
         
         if (loanFine.getBookLoan() != null) {
             this.bookLoanId = loanFine.getBookLoan().getId();
@@ -104,11 +104,11 @@ public class LoanFineResponseDTO implements ResponseDTO<LoanFine, LoanFineRespon
     }
 
     public boolean isPayed() {
-        return isPayed;
+        return payed;
     }
 
     public void setPayed(boolean payed) {
-        isPayed = payed;
+        this.payed = payed;
     }
 
     @Override
