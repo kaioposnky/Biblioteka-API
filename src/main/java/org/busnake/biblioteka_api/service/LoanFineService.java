@@ -81,6 +81,10 @@ public class LoanFineService {
             throw new IllegalStateException("Usuário não autorizado.");
         }
 
+        if(loanFine.isPayed()){
+            throw new IllegalStateException("A multa já foi paga!");
+        }
+
         // Aqui teria uma lógica para o usuário pagar a multa por exemplo
 
         loanFine.setPayed(true);
@@ -94,5 +98,7 @@ public class LoanFineService {
         bookRepository.save(book);
         bookLoanRepository.save(bookLoan);
         loanFineRepository.save(loanFine);
+
+        return loanFine;
     }
 }

@@ -40,13 +40,15 @@ public class BookLoanController implements GenericController<BookLoan> {
     private final LoanFineService loanFineService;
     private final BookLoanService bookLoanService;
     private final BookReservationService bookReservationService;
+    private final BookRepository bookRepository;
 
-    public BookLoanController(BookLoanRepository repository, BookLoanAssembler assembler, LoanFineService loanFineService, BookLoanService bookLoanService, BookReservationService bookReservationService) {
+    public BookLoanController(BookLoanRepository repository, BookLoanAssembler assembler, LoanFineService loanFineService, BookLoanService bookLoanService, BookReservationService bookReservationService, BookRepository bookRepository) {
         this.repository = repository;
         this.assembler = assembler;
         this.loanFineService = loanFineService;
         this.bookLoanService = bookLoanService;
         this.bookReservationService = bookReservationService;
+        this.bookRepository = bookRepository;
     }
 
     @GetMapping("/books/loans")
@@ -218,5 +220,20 @@ public class BookLoanController implements GenericController<BookLoan> {
         } catch (IllegalStateException ex) {
             return createErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping("/books/{bookId}/loans")
+    private ResponseEntity<?> bookLoans(@PathVariable Long bookId){
+        Book book = bookRepository.findById(bookId).orElseThrow(
+                () -> new BookNotFoundException(bookId)
+        );
+
+        List<BookLoan> bookLoans = repository.getBookLoansByBook(book);
+
+        return createSuccessResponse(
+                "Livros encontrados com sucesso!",
+                HttpStatus.OK,
+                assembler.toListModel(bookLoans)
+        );
     }
 }
