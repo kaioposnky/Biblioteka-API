@@ -1,6 +1,6 @@
 package org.busnake.biblioteka_api.service;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.busnake.biblioteka_api.exception.LoanFineNotFoundException;
 import org.busnake.biblioteka_api.model.entities.Book;
 import org.busnake.biblioteka_api.model.entities.BookLoan;
@@ -95,9 +95,6 @@ public class LoanFineService {
         Book book = bookLoan.getBook();
         book.setIsAvailable(true);
 
-        bookRepository.save(book);
-        bookLoanRepository.save(bookLoan);
-        loanFineRepository.save(loanFine);
 
         return loanFine;
     }
