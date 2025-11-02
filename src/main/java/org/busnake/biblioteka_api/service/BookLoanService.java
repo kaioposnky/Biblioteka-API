@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class BookLoanService {
@@ -72,12 +73,17 @@ public class BookLoanService {
         return bookLoanRepository.save(bookLoan);
     }
 
-    public BookLoan renewBookLoan(Long bookLoanId, LocalDate newDueDate) {
+    public BookLoan renewBookLoan(Long bookLoanId, LocalDate newDueDate, Long userId) {
 
         // Buscar o empréstimo
         BookLoan bookLoan = bookLoanRepository.findById(bookLoanId).orElseThrow(
                 () -> new BookLoanNotFoundException(bookLoanId)
         );
+
+        // Checa se o mesmo usuário que fez o empréstimo é o que fez o request
+        if(!Objects.equals(bookLoan.getUser().getId(), userId)){
+            throw new IllegalStateException("Usuário não autorizado.");
+        }
 
         // Verificar se o empréstimo já foi devolvido
         if (bookLoan.getIsReturned()) {
